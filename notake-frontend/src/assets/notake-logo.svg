@@ -1,0 +1,47 @@
+<svg width="200" height="80" viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Baby scribble note paper -->
+  <rect x="5" y="15" width="30" height="35" rx="3" fill="#06b6d4" opacity="0.3" transform="rotate(-8 20 32)"/>
+  <path d="M 10 25 Q 12 28, 15 26 Q 18 24, 20 27 Q 22 30, 25 28" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M 12 32 Q 14 34, 18 33 Q 20 32, 23 34" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" fill="none"/>
+  
+  <!-- Wobbly NOTAKE text like baby handwriting -->
+  <!-- N -->
+  <path d="M 45 35 Q 44 28, 45 20 Q 45 18, 47 18 L 49 18 Q 51 18, 52 20 L 58 32 Q 59 35, 58 37 L 58 38 Q 58 40, 56 40 L 54 40 Q 52 40, 52 38 L 52 25" 
+        stroke="#667eea" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- O -->
+  <ellipse cx="72" cy="29" rx="9" ry="11" 
+           stroke="#06b6d4" stroke-width="3.5" fill="none" 
+           transform="rotate(-5 72 29)"/>
+  
+  <!-- T -->
+  <path d="M 85 20 Q 88 19, 95 20 Q 97 20, 97 22" 
+        stroke="#667eea" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M 91 21 Q 90 25, 91 32 Q 91 36, 90 39" 
+        stroke="#667eea" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  
+  <!-- A -->
+  <path d="M 105 38 Q 106 35, 108 30 Q 110 25, 112 21 Q 113 19, 115 20 Q 116 21, 117 23 Q 119 28, 121 33 Q 122 36, 123 39" 
+        stroke="#06b6d4" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M 108 32 Q 112 31, 118 32" 
+        stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  
+  <!-- K -->
+  <path d="M 132 38 Q 131 35, 132 28 Q 132 23, 133 20" 
+        stroke="#667eea" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M 142 21 Q 138 24, 135 27 Q 133 29, 135 30 Q 137 31, 140 34 Q 142 36, 143 39" 
+        stroke="#667eea" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  
+  <!-- E -->
+  <path d="M 155 38 Q 154 35, 155 29 Q 155 24, 156 21 Q 156 19, 158 19 L 163 20 Q 165 20, 165 22" 
+        stroke="#06b6d4" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M 156 29 Q 158 28, 162 29 Q 163 29, 163 30" 
+        stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M 155 37 Q 157 38, 163 38 Q 165 38, 165 39" 
+        stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  
+  <!-- Little stars/doodles -->
+  <circle cx="175" cy="25" r="2" fill="#06b6d4" opacity="0.6"/>
+  <circle cx="182" cy="32" r="1.5" fill="#667eea" opacity="0.6"/>
+  <path d="M 170 38 L 172 40 L 170 42 L 168 40 Z" fill="#06b6d4" opacity="0.5"/>
+</svg>
