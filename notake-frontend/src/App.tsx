@@ -1,7 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import AuthPage from './pages/AuthPage';
-import Dashboard from './pages/Dashboard';
+import Layout from './components/Layout';
+import Profile from './pages/Profile';
+import Notes from './pages/Notes';
+import Files from './pages/Files';
+import Board from './pages/Board';
 import authService from './services/authService';
 
 // Protected Route Component
@@ -11,7 +15,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 // Public Route Component (redirect if already logged in)
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  return authService.isAuthenticated() ? <Navigate to="/dashboard" /> : <>{children}</>;
+  return authService.isAuthenticated() ? <Navigate to="/dashboard/notes" /> : <>{children}</>;
 }
 
 function App() {
@@ -30,10 +34,16 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Layout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<Navigate to="/dashboard/notes" replace />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="notes" element={<Notes />} />
+          <Route path="files" element={<Files />} />
+          <Route path="board" element={<Board />} />
+        </Route>
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
