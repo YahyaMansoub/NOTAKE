@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NOTAKE - Test Profile Image</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        .test-section {
+            background: #16213e;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        img {
+            max-width: 200px;
+            border-radius: 50%;
+            border: 3px solid #4ecca3;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #2ecc71; color: white; }
+        .error { background: #e74c3c; color: white; }
+        button {
+            background: #4ecca3;
+            color: #16213e;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #45b393; }
+    </style>
+</head>
+<body>
+    <h1>🧪 NOTAKE Database & API Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Test Profile Image URL</h2>
+        <p>Checking profile image from backend...</p>
+        <div id="imageTest"></div>
+        <button onclick="testProfileImage()">Test Image Load</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Test API Endpoints</h2>
+        <div id="apiTest"></div>
+        <button onclick="testAPI()">Test API</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Database Query Test</h2>
+        <p>Check browser console (F12) for API responses</p>
+        <button onclick="testDatabase()">Test Database</button>
+        <div id="dbTest"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://172.28.159.226:8080/api';
+        
+        async function testProfileImage() {
+            const div = document.getElementById('imageTest');
+            div.innerHTML = '<p>Loading...</p>';
+            
+            // Test direct file access
+            const testUrl = `${API_URL}/files/profile/profile_4_494a63cf-cbaa-4b8f-954a-4d0f3956368c.png`;
+            
+            const img = document.createElement('img');
+            img.src = testUrl;
+            img.onload = () => {
+                div.innerHTML = `
+                    <div class="status success">✓ Image loaded successfully!</div>
+                    <img src="${testUrl}" alt="Profile">
+                    <p>URL: ${testUrl}</p>
+                `;
+            };
+            img.onerror = () => {
+                div.innerHTML = `
+                    <div class="status error">❌ Failed to load image</div>
+                    <p>URL: ${testUrl}</p>
+                    <p>Check if the backend is running and the file exists</p>
+                `;
+            };
+        }
+        
+        async function testAPI() {
+            const div = document.getElementById('apiTest');
+            div.innerHTML = '<p>Testing...</p>';
+            
+            try {
+                // Test health endpoint (no auth required)
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                
+                div.innerHTML = `
+                    <div class="status success">✓ API is responsive</div>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                div.innerHTML = `
+                    <div class="status error">❌ API Error: ${error.message}</div>
+                `;
+            }
+        }
+        
+        async function testDatabase() {
+            const div = document.getElementById('dbTest');
+            div.innerHTML = '<p>Note: This requires authentication. Check console for details.</p>';
+            
+            console.log('=== NOTAKE API Test ===');
+            console.log('API URL:', API_URL);
+            console.log('\n1. To test authenticated endpoints:');
+            console.log('   - Login to the app');
+            console.log('   - Open DevTools (F12)');
+            console.log('   - Go to Network tab');
+            console.log('   - Interact with the app');
+            console.log('   - Check the requests and responses');
+        }
+        
+        // Auto-test on load
+        window.onload = () => {
+            testAPI();
+        };
+    </script>
+</body>
+</html>

@@ -1,52 +1,57 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import fileService from '../services/fileService';
+import type { FileData } from '../services/fileService';
 import './Files.css';
 
-interface FileItem {
-  id: number;
-  name: string;
-  size: string;
-  type: string;
-  uploadDate: Date;
-  category: 'document' | 'image' | 'video' | 'audio' | 'other';
-}
-
 function Files() {
-  const [files, setFiles] = useState<FileItem[]>([]);
+  const [files, setFiles] = useState<FileData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const uploadedFiles = e.target.files;
-    if (uploadedFiles) {
-      const newFiles: FileItem[] = Array.from(uploadedFiles).map((file, index) => {
-        let category: FileItem['category'] = 'other';
-        if (file.type.startsWith('image/')) category = 'image';
-        else if (file.type.startsWith('video/')) category = 'video';
-        else if (file.type.startsWith('audio/')) category = 'audio';
-        else if (file.type.includes('pdf') || file.type.includes('document')) category = 'document';
+  useEffect(() => {
+    loadFiles();
+  }, []);
 
-        return {
-          id: Date.now() + index,
-          name: file.name,
-          size: formatFileSize(file.size),
-          type: file.type || 'unknown',
-          uploadDate: new Date(),
-          category,
-        };
-      });
-      setFiles([...newFiles, ...files]);
+  const loadFiles = async () => {
+    try {
+      setLoading(true);
+      const data = await fileService.getAllFiles();
+      setFiles(data);
+      setError('');
+    } catch (err: any) {
+      setError('Failed to load files');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFiles = e.target.files;
+    if (!uploadedFiles || uploadedFiles.length === 0) return;
+
+    try {
+      setUploading(true);
+      setError('');
+      
+      const fileArray = Array.from(uploadedFiles);
+      const responses = await fileService.uploadMultipleFiles(fileArray);
+      
+      setFiles([...responses, ...files]);
+    } catch (err: any) {
+      setError('Failed to upload files');
+      console.error(err);
+    } finally {
+      setUploading(false);
+    }
   };
 
-  const getCategoryIcon = (category: FileItem['category']): string => {
-    switch (category) {
+  const getCategoryIcon = (category: string): string => {
+    switch (category.toLowerCase()) {
       case 'document': return 'uil-file-alt';
       case 'image': return 'uil-image';
       case 'video': return 'uil-video';
@@ -55,17 +60,50 @@ function Files() {
     }
   };
 
-  const handleDeleteFile = (id: number) => {
-    if (window.confirm('Are you sure you want to delete this file?')) {
+  const handleDeleteFile = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete this file?')) return;
+    
+    try {
+      await fileService.deleteFile(id);
       setFiles(files.filter(file => file.id !== id));
+    } catch (err: any) {
+      setError('Failed to delete file');
+      console.error(err);
+    }
+  };
+
+  const handleDownloadFile = async (file: FileData) => {
+    try {
+      const blob = await fileService.downloadFile(file.id);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = file.originalFileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      setError('Failed to download file');
+      console.error(err);
     }
   };
 
   const filteredFiles = files.filter(file => {
-    const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = filterCategory === 'all' || file.category === filterCategory;
+    const matchesSearch = file.originalFileName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = filterCategory === 'all' || file.category.toLowerCase() === filterCategory;
     return matchesSearch && matchesCategory;
   });
+
+  if (loading) {
+    return (
+      <div className="files-section">
+        <div className="files-container">
+          <div className="loading-message">Loading files...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="files-section">
@@ -75,15 +113,16 @@ function Files() {
             <h1>Files</h1>
             <p className="files-subtitle">Manage all your uploaded files</p>
           </div>
-          <label htmlFor="file-upload" className="btn-upload-file">
+          <label htmlFor="file-upload" className={`btn-upload-file ${uploading ? 'uploading' : ''}`}>
             <i className="uil uil-cloud-upload"></i>
-            <span>Upload Files</span>
+            <span>{uploading ? 'Uploading...' : 'Upload Files'}</span>
           </label>
           <input
             id="file-upload"
             type="file"
             multiple
             onChange={handleFileUpload}
+            disabled={uploading}
             style={{ display: 'none' }}
           />
         </div>
@@ -133,6 +172,12 @@ function Files() {
           </div>
         </div>
 
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
+
         <div className="files-stats">
           <div className="stat-item">
             <i className="uil uil-file"></i>
@@ -144,21 +189,21 @@ function Files() {
           <div className="stat-item">
             <i className="uil uil-file-alt"></i>
             <div>
-              <div className="stat-value">{files.filter(f => f.category === 'document').length}</div>
+              <div className="stat-value">{files.filter(f => f.category === 'DOCUMENT').length}</div>
               <div className="stat-label">Documents</div>
             </div>
           </div>
           <div className="stat-item">
             <i className="uil uil-image"></i>
             <div>
-              <div className="stat-value">{files.filter(f => f.category === 'image').length}</div>
+              <div className="stat-value">{files.filter(f => f.category === 'IMAGE').length}</div>
               <div className="stat-label">Images</div>
             </div>
           </div>
           <div className="stat-item">
             <i className="uil uil-video"></i>
             <div>
-              <div className="stat-value">{files.filter(f => f.category === 'video').length}</div>
+              <div className="stat-value">{files.filter(f => f.category === 'VIDEO').length}</div>
               <div className="stat-label">Videos</div>
             </div>
           </div>
@@ -178,16 +223,20 @@ function Files() {
                   <i className={`uil ${getCategoryIcon(file.category)} file-icon`}></i>
                 </div>
                 <div className="file-details">
-                  <h3 className="file-name" title={file.name}>{file.name}</h3>
+                  <h3 className="file-name" title={file.originalFileName}>{file.originalFileName}</h3>
                   <div className="file-meta">
-                    <span className="file-size">{file.size}</span>
+                    <span className="file-size">{fileService.formatFileSize(file.fileSize)}</span>
                     <span className="file-date">
-                      {file.uploadDate.toLocaleDateString()}
+                      {new Date(file.uploadDate).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
                 <div className="file-actions">
-                  <button className="icon-btn" title="Download">
+                  <button 
+                    className="icon-btn" 
+                    title="Download"
+                    onClick={() => handleDownloadFile(file)}
+                  >
                     <i className="uil uil-download-alt"></i>
                   </button>
                   <button className="icon-btn" title="Share">
